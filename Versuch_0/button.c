@@ -21,11 +21,17 @@ Everything that is necessary to get the input from the Buttons in a clean format
  *           4 Buttons: 1,3,4 -pushed: 00001101
  */
 uint8_t getInput(void) {
-	uint8_t buttons1_2 = PINC & 0b11000000;
-	buttons1_2 = buttons1_2 >> 4;
-	uint8_t buttons3_4 = PINC & 0b00000011;
+	uint8_t buttons1 = PINC & 0b10000000;
+	buttons1 = buttons1 >> 7;
+	uint8_t buttons2 = PINC & 0b01000000;
+	buttons2 = buttons2 >> 5;
+	uint8_t buttons3 = PINC & 0b00000010;
+	buttons3 = buttons3 << 1;
+	uint8_t buttons4 = PINC & 0b00000001;
+	buttons4 = buttons4 << 3;
 	
-	uint8_t buttons = buttons1_2 | buttons3_4;
+	
+	uint8_t buttons = buttons1 | buttons2 | buttons3 | buttons4;
 	return (0b00001111 & ~buttons);
 }
 
