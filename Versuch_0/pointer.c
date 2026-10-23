@@ -37,7 +37,10 @@ typedef struct sFirst {
 } sFirst;
 
 //! Simple second structure. Helps to realize an example for pointer on structs.
-#warning IMPLEMENT STH. HERE
+typedef struct sSecond {
+	sFirst *one;
+} sSecond;
+
 
 //----------------------------------------------------------------------------
 // Required variables
@@ -55,7 +58,8 @@ void learningPointers(void) {
 //----------------------------------------------------------------------------
 // Step 1: allocate some memory to store some characters
 //----------------------------------------------------------------------------
-#warning IMPLEMENT STH. HERE
+	uint16_t *p = malloc(3 * sizeof(uint16_t));
+	memory = p;
 
     if (!memory) {
         lcd_writeProgString(PSTR("Could not alloc"));
@@ -67,8 +71,7 @@ void learningPointers(void) {
     // Step 2: learning to count with addresses and dereferencing
     //----------------------------------------------------------------------------
     displayStep('2', 1, PSTR("Dereferencing"), 0, 0);
-
-#warning IMPLEMENT STH. HERE
+	*(memory + (sizeof(uint8_t) * 5)) = alphabet[6]; 
 
     //----------------------------------------------------------------------------
     // Step 3: create a pointer and learn to use '*' and '&' operator
@@ -76,39 +79,47 @@ void learningPointers(void) {
     charVar = 'A';
     displayStep('3', 1, PSTR("Character: "), charVar, 0);
 
-#warning IMPLEMENT STH. HERE
+	char *c = &charVar;
+	*c = "I";
 
     displayStep('3', 1, PSTR("Character: "), charVar, 0);
 
 //----------------------------------------------------------------------------
 // Step 4: Call by Value and Call by Reference
 //----------------------------------------------------------------------------
-#warning IMPLEMENT CALL BY VALUE HERE
+	callByValue(alphabet[0]);
     displayStep('4', 0, PSTR(" Call by  Value: "), alphabet[0], 0);
 
-#warning IMPLEMENT CALL BY REFERENCE HERE
+	callByReference(&alphabet[0]);
     displayStep('4', 0, PSTR(" Call by  Reference: "), alphabet[0], 0);
 
 //----------------------------------------------------------------------------
 // Step 5: pointer on pointer
 //----------------------------------------------------------------------------
-#warning IMPLEMENT STH. HERE
+	char **ppChar = &c;
+	c = &alphabet;
+	*(*ppChar + (4* sizeof(uint8_t))) = 'I'; 
 
     // include the following line after implementing step 5
-    // displayStep('5', 1, PSTR("**ppChar: "), **ppChar, 0);
+    displayStep('5', 1, PSTR("**ppChar: "), **ppChar, 0);
 
     //----------------------------------------------------------------------------
     // Step 6: pointer on structure
     //----------------------------------------------------------------------------
     sFirst sfoo = {.bar = 'Z'};
     displayStep('6', 1, PSTR("sfoo.bar: "), sfoo.bar, 0);
+	
+	sSecond pStruct = {.one = &sfoo;};
+	*memory = pStruct.one->bar;
 
-#warning IMPLEMENT STH. HERE
 
 //----------------------------------------------------------------------------
 // Step 7: function pointer
 //----------------------------------------------------------------------------
-#warning IMPLEMENT STH. HERE
+	uint8_t (*zeiger)(void) = &charFunction;
+	uint8_t a;
+	a = (*zeiger);
+	*(memory + (sizeof(uint8_t) * 3)) = a; 
 
     displayStep('7', 0, PSTR("FunctionPointer Addr:"), 0, (uint16_t)charFunction);
 

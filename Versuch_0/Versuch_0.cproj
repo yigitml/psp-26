@@ -181,5 +181,11 @@
     <Compile Include="pointer.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="structures.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="structures.h">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
 </Project>
