@@ -9,7 +9,11 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
+#include "lcd.h"
+
+#include <avr/io.h>
 #include <stdint.h>
+#include <util/delay.h>
 
 //----------------------------------------------------------------------------
 // Function headers

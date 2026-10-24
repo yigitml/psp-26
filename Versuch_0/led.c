@@ -6,6 +6,8 @@
  */ 
 
  #include "button.h"
+ #include <avr/io.h>
+
 
 void led_init(void) {
 	DDRD |= 0b11111111;
@@ -17,6 +19,8 @@ void led_fun(void) {
 	while (flag)
 	{
 		uint8_t buttonState = getInput();
+		
+		
 		//Taster 1
 		if ((buttonState & 1) == 1)
 		{
@@ -27,7 +31,8 @@ void led_fun(void) {
 		//Taster 2
 		if ((buttonState & 0b00000010) == 0b00000010)
 		{
-			if (PORTD & 0b10000000 = 0b10000000)
+			waitForNoInput();
+			if ((PORTD & 0b10000000) == 0b10000000)
 			{
 				PORTD = PORTD << 1;
 				PORTD |= 0b00000001;
@@ -39,6 +44,7 @@ void led_fun(void) {
 		//Taster 3
 		if ((buttonState & 0b00000100) == 0b00000100)
 		{
+			waitForNoInput();
 			PORTD = ~PORTD;
 		}
 	}
