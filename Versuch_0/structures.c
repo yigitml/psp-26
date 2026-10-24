@@ -40,6 +40,7 @@ void displayArticles(void) {
 	{
 		waitForInput();
 		waitForNoInput();
+		lcd_clear();
 		uint8_t prodID = articleArray[pos].articleNumber.singleNumbers.productID;
 		uint8_t manID = articleArray[pos].articleNumber.singleNumbers.manufactureId;
 		
@@ -71,6 +72,7 @@ void displayArticles(void) {
 		}
 		
 		pos = (pos + 1) % 3;
+		
 	}
 	
 	

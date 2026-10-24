@@ -10,16 +10,15 @@
 
 
 int main(void) {
+	initInput();
+	led_init();
+	lcd_init();
+	
 	//Buttons test
-	//initInput();
 	//buttonTest();
 	
 	//LEDS test
-	//led_init();
 	//led_fun();
-	
-	//LCD test
-	//lcd_init();
 	
 	//Datatypes test
 	//loop();

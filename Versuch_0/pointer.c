@@ -80,7 +80,7 @@ void learningPointers(void) {
     displayStep('3', 1, PSTR("Character: "), charVar, 0);
 
 	uint8_t *c = &charVar;
-	*c = 'I';
+	*c = alphabet[2];
 
     displayStep('3', 1, PSTR("Character: "), charVar, 0);
 
