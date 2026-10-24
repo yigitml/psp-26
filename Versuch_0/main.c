@@ -5,23 +5,32 @@
 #include "led.h"
 #include "lcd.h"
 #include "datatypes.h"
-#include "pointer.h"
 #include "structures.h"
+#include "pointer.h"
 
 
 int main(void) {
-	initInput();
-	buttonTest();
+	//Buttons test
+	//initInput();
+	//buttonTest();
 	
-	led_init();
-	led_fun();,
+	//LEDS test
+	//led_init();
+	//led_fun();
 	
-	lcd_init();
+	//LCD test
+	//lcd_init();
 	
-	loop();
-	convert();
-	shift();
+	//Datatypes test
+	//loop();
+	//convert();
+	//shift();
 	
+	//Structures test
+	//displayArticles();
+	
+	//Pointers test
+	//learningPointers();
 	
     /* Replace with your application code */
     while (1) {

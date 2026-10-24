@@ -9,18 +9,6 @@
 #include "lcd.h"
 #include "button.h"
 #include <stdint.h>
-
-enum DistributionStatus {
-	AVAILABLE, 
-	BACKORDER,
-	SOLD_OUT = 99,
-	};
-	
-	
-struct ArticleNumber {
-		uint8_t manufactureId; 
-		uint8_t productID;
-	};
 	
 
 typedef enum {
@@ -30,8 +18,8 @@ typedef enum {
 	} DistributionStatus;
 	
 typedef struct {
-	uint8_t productID;
 	uint8_t manufactureId;
+	uint8_t productID;
 	} ArticleNumber;
 	
 typedef union {
@@ -45,31 +33,15 @@ struct Article {
 	};
 	
 void displayArticles(void) {
-	Article articleArray[] = {{{0x1101}, AVAILABLE}, {{0x1110}, BACKORDER}, {{0x0101}, SOLD_OUT}};
+	struct Article articleArray[] = {{{0x1101}, AVAILABLE}, {{0x1110}, BACKORDER}, {{0x0101}, SOLD_OUT}};
 	
-	int pos = 1;
+	int pos = 0;
 	while (1)
 	{
 		waitForInput();
-		uint8_t prodID = articleArray[pos-1].articleNumber & 0x1100;
-		uint8_t manID = articleArray[pos-1].articleNumber & 0x0011;
-		
-		char arr[];
-		switch (articleArray[pos-1].status)
-		{
-		case 0:
-			arr = "Lager";
-			break;
-		case 1:
-			arr = "RStand";
-			break;
-		case 99:
-			arr = "Aus";
-			break;
-		default:
-			arr = "ERR";
-			break;
-		}
+		waitForNoInput();
+		uint8_t prodID = articleArray[pos].articleNumber.singleNumbers.productID;
+		uint8_t manID = articleArray[pos].articleNumber.singleNumbers.manufactureId;
 		
 		lcd_init();
 		lcd_line1();
@@ -81,7 +53,22 @@ void displayArticles(void) {
 		lcd_writeString("Art# ");
 		//Normally with uint16_t
 		lcd_writeDec(prodID);
-		lcd_writeString(arr);
+		
+		switch (articleArray[pos].status)
+		{
+			case 0:
+			lcd_writeString("Lager");
+			break;
+			case 1:
+			lcd_writeString("RStand");
+			break;
+			case 99:
+			lcd_writeString("AUS");
+			break;
+			default:
+			lcd_writeString("ERR");
+			break;
+		}
 		
 		pos = (pos + 1) % 3;
 	}

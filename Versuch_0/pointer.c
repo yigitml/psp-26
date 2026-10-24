@@ -58,7 +58,7 @@ void learningPointers(void) {
 //----------------------------------------------------------------------------
 // Step 1: allocate some memory to store some characters
 //----------------------------------------------------------------------------
-	uint16_t *p = malloc(3 * sizeof(uint16_t));
+	uint8_t *p = malloc(3 * sizeof(uint16_t));
 	memory = p;
 
     if (!memory) {
@@ -79,8 +79,8 @@ void learningPointers(void) {
     charVar = 'A';
     displayStep('3', 1, PSTR("Character: "), charVar, 0);
 
-	char *c = &charVar;
-	*c = "I";
+	uint8_t *c = &charVar;
+	*c = 'I';
 
     displayStep('3', 1, PSTR("Character: "), charVar, 0);
 
@@ -96,9 +96,9 @@ void learningPointers(void) {
 //----------------------------------------------------------------------------
 // Step 5: pointer on pointer
 //----------------------------------------------------------------------------
-	char **ppChar = &c;
-	c = &alphabet;
-	*(*ppChar + (4* sizeof(uint8_t))) = 'I'; 
+	uint8_t **ppChar = &c;
+	c = alphabet;
+	memory[4] = **ppChar; 
 
     // include the following line after implementing step 5
     displayStep('5', 1, PSTR("**ppChar: "), **ppChar, 0);
@@ -109,7 +109,7 @@ void learningPointers(void) {
     sFirst sfoo = {.bar = 'Z'};
     displayStep('6', 1, PSTR("sfoo.bar: "), sfoo.bar, 0);
 	
-	sSecond pStruct = {.one = &sfoo;};
+	sSecond pStruct = {.one = &sfoo};
 	*memory = pStruct.one->bar;
 
 
@@ -118,7 +118,7 @@ void learningPointers(void) {
 //----------------------------------------------------------------------------
 	uint8_t (*zeiger)(void) = &charFunction;
 	uint8_t a;
-	a = (*zeiger);
+	a = (*zeiger)();
 	*(memory + (sizeof(uint8_t) * 3)) = a; 
 
     displayStep('7', 0, PSTR("FunctionPointer Addr:"), 0, (uint16_t)charFunction);

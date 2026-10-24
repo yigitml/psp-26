@@ -13,6 +13,6 @@
 #include "button.h"
 #include <stdint.h>
 
-
+void displayArticles(void);
 
 #endif /* STRUCTURES_H_ */
