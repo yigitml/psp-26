@@ -21,7 +21,7 @@ Everything that is necessary to get the input from the Buttons in a clean format
 uint8_t os_getInput(void) {
 	uint8_t buttons12 = (PINC & 0b00000011);
 	uint8_t buttons34 = (PINC & 0b11000000);
-	buttons34 = buttons34 >> 5;
+	buttons34 = buttons34 >> 4;
 	
 	uint8_t buttons = buttons12 | buttons34;
 	return (0b00001111 & ~buttons); 

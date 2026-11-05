@@ -55,7 +55,7 @@ void displayClock(void) {
 		}
 		
 		// Reset LCD
-		_delay_ms(50);
+		_delay_ms(100);
 		lcd_clear();
 		
 		uint16_t millisekunde = getTimeMilliseconds(); 
@@ -70,12 +70,15 @@ void displayClock(void) {
 		// LCD (12:59:45:000)
 		if (stunde < 10){lcd_writeDec(0);}
 		lcd_writeDec(stunde);
+		lcd_writeString(":");
 		
 		if (minute < 10){lcd_writeDec(0);}
-		lcd_writeDec(minute);		
+		lcd_writeDec(minute);
+		lcd_writeString(":");		
 		
 		if (sekunde < 10){lcd_writeDec(0);}
 		lcd_writeDec(sekunde);
+		lcd_writeString(":");
 		
 		if (millisekunde < 100){lcd_writeDec(0);}
 		if (millisekunde < 10){lcd_writeDec(0);}
@@ -133,19 +136,19 @@ void displayAdc(void) {
 		
 		
 		// Enter
-		if (os_getInput() & 0b00000010){ 
+		if (os_getInput() & 1){ 
 			storeVoltage();
 			displayVoltageBuffer(zahlIndex);
 		}
 		
 		// Up
-		if (os_getInput() & 2){
-			if (zahlIndex < 100 && getBufferIndex() <= zahlIndex ){zahlIndex++;}
+		if (os_getInput() & 4){
+			if ((zahlIndex < 100) && (zahlIndex < getBufferIndex())){zahlIndex++;}
 			displayVoltageBuffer(zahlIndex);
 		}
 		
 		// Down
-		if (os_getInput() & 4){
+		if (os_getInput() & 2){
 			if (zahlIndex > 1){zahlIndex--;}
 			displayVoltageBuffer(zahlIndex);
 		}
