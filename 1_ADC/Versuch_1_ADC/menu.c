@@ -55,7 +55,7 @@ void displayClock(void) {
 		}
 		
 		// Reset LCD
-		_delay_ms(100);
+		_delay_ms(120);
 		lcd_clear();
 		
 		uint16_t millisekunde = getTimeMilliseconds(); 

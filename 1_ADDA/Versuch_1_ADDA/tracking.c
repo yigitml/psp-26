@@ -12,7 +12,7 @@
  #include <util/delay.h>
  #include "os_input.h"
  
- void tracking(void){
+void tracking(void){
 	DDRC &= 0b11111100;
 	PORTC |= 0b00000011;
 	
@@ -33,7 +33,7 @@
 		if (PINC & 1)
 		{
 			while (PINC & 1){
-				if (ref >= 0){ref--;}
+				if (ref > 0){ref--;}
 				_delay_ms(50);
 				PORTA = ~ref;
 				PORTB = ref;
@@ -42,7 +42,7 @@
 		}
 		else {
 			while (!(PINC & 1)){
-				if (ref <= 255){ref++;}
+				if (ref < 255){ref++;}
 				_delay_ms(50);
 				PORTA = ~ref;
 				PORTB = ref;

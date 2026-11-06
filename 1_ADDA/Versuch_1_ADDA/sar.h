@@ -16,6 +16,6 @@
 #include <util/delay.h>
 #include "os_input.h"
 
-
+void sar(void);
 
 #endif /* SAR_H_ */

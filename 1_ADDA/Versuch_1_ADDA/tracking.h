@@ -14,6 +14,6 @@
 #include <util/delay.h>
 #include "os_input.h"
 
-
+void tracking(void);
 
 #endif /* TRACKİNG_H_ */
