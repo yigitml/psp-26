@@ -16,8 +16,11 @@
  *                      -released: 00000000
  */
 uint8_t os_getInput(void) {
+	//Read input of button on PIN C1
 	uint8_t button = (PINC & 0b00000010);
+	//Push it to lowest bit
 	button = button >> 1;
+	//Muss invertieren, da button bei 0 ON ist.
 	return (0b00000001 & ~button);
 	
 }
@@ -26,6 +29,7 @@ uint8_t os_getInput(void) {
  *  Initializes DDR and PORT for input
  */
 void os_initInput() {
+	// PORTC als Eingang + Pull-Up Widerstand aktivieren
 	DDRC &= 0b11111101;
 	PORTC |= 0b00000010;
 }
@@ -37,6 +41,7 @@ void os_waitForNoInput() {
 	int flag = 1;
 	while (flag)
 	{
+		// 0 if button not pushed => flag = 0
 		if (!os_getInput())
 		{
 			flag = 0;
@@ -51,6 +56,7 @@ void os_waitForInput() {
 	int flag = 1;
 	while (flag)
 	{
+		// 0 if button pushed => flag = 0
 		if (os_getInput())
 		{
 			flag = 0;

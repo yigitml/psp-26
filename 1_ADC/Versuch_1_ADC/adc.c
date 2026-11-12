@@ -78,15 +78,22 @@ uint8_t getBufferIndex() {
  *
  */
 void storeVoltage(void){
+	// Check if array is init
 	if (bufferSize == 0) {
+		// if array not init => malloc (100 * 2B)
 		bufferStart = malloc(100 * sizeof(uint16_t));
-		if (bufferStart == NULL){return;} 
+		// If malloc fails => return empty
+		if (bufferStart == NULL){return;}
+		// Else, init bufferSize and bufferIndex 
 		bufferSize = 100;
 		bufferIndex = 0;
 	}
 
+	// If array is full => return
 	if (bufferIndex >= bufferSize) {return;}
+	// Else, record lastCaptured in pos bufferIndex in array bufferStart
 	bufferStart[bufferIndex] = lastCaptured;
+	// increase pos bufferIndex by 1
 	bufferIndex++;
 	
 }
@@ -97,6 +104,8 @@ void storeVoltage(void){
  * \return      The voltage value with index ind.
  */
 uint16_t getStoredVoltage(uint8_t ind) {
+	// Check if value present in pos ind, 0 if not
 	if (ind >= bufferIndex){return 0;}
+	// Else return stored value
     return bufferStart[ind];
 }

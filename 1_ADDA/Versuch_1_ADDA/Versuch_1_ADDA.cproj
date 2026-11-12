@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build" ToolsVersion="14.0">
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
@@ -21,22 +21,22 @@
     <CacheFlash>true</CacheFlash>
     <ProgFlashFromRam>true</ProgFlashFromRam>
     <RamSnippetAddress>0x20000000</RamSnippetAddress>
-    <UncachedRange/>
+    <UncachedRange />
     <preserveEEPROM>true</preserveEEPROM>
     <OverrideVtorValue>exception_table</OverrideVtorValue>
     <BootSegment>2</BootSegment>
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <ResetRule>0</ResetRule>
-    <EraseKey/>
+    <EraseKey />
     <AsfFrameworkConfig>
       <framework-data>
-        <options/>
-        <configurations/>
-        <files/>
-        <documentation help=""/>
-        <offline-documentation help=""/>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
         <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.40.0"/>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.40.0" />
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
@@ -145,15 +145,39 @@
     <CleanTarget>clean</CleanTarget>
     <ExternalMakeFilePath>..\Makefile</ExternalMakeFilePath>
   </PropertyGroup>
-  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets"/>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
   <ItemGroup>
+    <Compile Include="dimmen.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="dimmen.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="manuell.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="manuell.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="os_input.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="os_input.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sar.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="sar.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tracking.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="tracking.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

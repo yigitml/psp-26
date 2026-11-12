@@ -15,30 +15,38 @@
  *  Shows the string 'Hello World!' on the display.
  */
 void helloWorld(void) {
-// Repeat until ESC gets pressed
+	// Repeat until ESC gets pressed
 	while (1) {
+		// If ESC pressed => break
 		if (os_getInput() >> 3) {
 			os_waitForNoInput();
 			break;
 		}
+		
 		lcd_writeString("Hallo Welt!");
 		
+		// If ESC pressed => break
 		if (os_getInput() >> 3) {
 			os_waitForNoInput();
 			break;
 		}
+		
 		_delay_ms(500);
 		
+		// If ESC pressed => break
 		if (os_getInput() >> 3) {
 			os_waitForNoInput();
 			break;
 		}
+		
 		lcd_clear();
 		
+		// If ESC pressed => break
 		if (os_getInput() >> 3) {
 			os_waitForNoInput();
 			break;
 		}
+		
 		_delay_ms(500);
 
 	}
@@ -48,7 +56,9 @@ void helloWorld(void) {
  *  Shows the clock on the display and a binary clock on the led bar.
  */
 void displayClock(void) {
+	// Repeat until ESC gets pressed
 	while (1){
+		// If ESC pressed => break
 		if (os_getInput() >> 3){
 			os_waitForNoInput();
 			break;
@@ -90,14 +100,21 @@ void displayClock(void) {
  *  Shows the stored voltage values in the second line of the display.
  */
 void displayVoltageBuffer(uint8_t displayIndex) {
+	// Clean previous text from line 1
 	lcd_erase(2);
+	// Move back to line 2
 	lcd_line2();
+	
+	//Display index text
 	if (displayIndex < 100){lcd_writeDec(0);}
 	if (displayIndex < 10){lcd_writeDec(0);}
 	lcd_writeDec(displayIndex);
 	lcd_writeString("/");
 	lcd_writeDec(100);
 	lcd_writeString(": ");
+	
+	// Display stored voltage
+	// displayIndex - 1 bc. zahlIndex = 1, bufferIndex = 0
 	uint16_t storedVoltage = getStoredVoltage(displayIndex - 1);
 	lcd_writeVoltage(storedVoltage, 1023, 5);
 }
@@ -106,18 +123,27 @@ void displayVoltageBuffer(uint8_t displayIndex) {
  *  Shows the ADC value on the display and on the led bar.
  */
 void displayAdc(void) {
+	// Start index at 001/100
 	uint8_t zahlIndex = 1;
+	// Clean previous text from line 1
 	lcd_erase(1);
-	lcd_line1();
+	// Move back to line 1 (not needed)
+	// lcd_line1();
+	
+	// init line 2
 	displayVoltageBuffer(zahlIndex);
 	
+	// Repeat until ESC gets pressed
 	while (1){
+		// If ESC pressed => break
 		if (os_getInput() >> 3){
 			os_waitForNoInput();
 			break;
 		}
 		_delay_ms(100);
+		// Clean previous text from line 1
 		lcd_erase(1);
+		//  Move back to line 1
 		lcd_line1();
 
 		uint16_t ledValue = 0;
@@ -127,29 +153,39 @@ void displayAdc(void) {
 		lcd_writeString("Voltage: ");
 		lcd_writeVoltage(adcResult, 1023, 5);
 	
+	
+		// LEDs
 		while (adcResult >= 68){
-			ledValue = ledValue << 1;
-			ledValue |= 2;
+			// Multiplikation mit 2
+			ledValue = ledValue << 1; 
+			// Addition von 2
+			ledValue |= 2; // 
 			adcResult -= 68;
 		}
 		setLedBar(ledValue);
 		
 		
-		// Enter
+		// LCD Line 2 Index Menu System
+		// Enter (C0 -> LSB)
 		if (os_getInput() & 1){ 
+			// Pressed Enter => Store current voltage at current index
 			storeVoltage();
+			// Show stored voltage at current Index
 			displayVoltageBuffer(zahlIndex);
 		}
-		
-		// Up
+		// Up (C6 -> 3. LSB)
 		if (os_getInput() & 4){
+			// Check if index not at max AND didnt pass bufferIndex => go to next index
 			if ((zahlIndex < 100) && (zahlIndex < getBufferIndex())){zahlIndex++;}
+			// Show stored voltage at current Index
 			displayVoltageBuffer(zahlIndex);
 		}
 		
-		// Down
+		// Down (C1 -> 2. LSB)
 		if (os_getInput() & 2){
+			// Check if index not at min => go to prev index
 			if (zahlIndex > 1){zahlIndex--;}
+			// Show stored voltage at current Index
 			displayVoltageBuffer(zahlIndex);
 		}
 	}
@@ -159,6 +195,8 @@ void displayAdc(void) {
  *
  * \param programIndex Index of the program to start.
  */
+
+//Glorified switch case
 void start(uint8_t programIndex) {
     // Initialize and start the passed 'program'
     switch (programIndex) {

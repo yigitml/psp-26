@@ -31,7 +31,9 @@ uint8_t os_getInput(void) {
  *  Initializes DDR and PORT for input
  */
 void os_initInput() {
+	// Eingang
 	DDRC &= 0b00111100;
+	// Pull-Up Widerstand aktivieren
 	PORTC |= 0b11000011;
 }
 

@@ -4,10 +4,10 @@
 #include <avr/io.h>
 
 //! Global variables
-uint16_t millisekunde;
-uint8_t sekunde;
-uint8_t minute;
-uint8_t stunde;
+volatile uint16_t millisekunde;
+volatile uint8_t sekunde;
+volatile uint8_t minute;
+volatile uint8_t stunde;
 
 /*!
  * \return The milliseconds counter of the current time.
@@ -70,21 +70,21 @@ void initClock(void) {
 void updateClock(void){
 	if (millisekunde >= 1000){
 		sekunde++;
-		millisekunde = 0;
+		millisekunde -= 1000;
 	}
 	
 	if (sekunde >= 60){
 		minute++;
-		sekunde = 0;
+		sekunde -= 60;
 	}
 	
 	if (minute >= 60){
 		stunde++;
-		minute = 0;
+		minute -= 60;
 	}
 	
 	if (stunde >= 13){
-		stunde = 1;
+		stunde -= 12;
 	}
 }
 
