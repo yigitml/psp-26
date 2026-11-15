@@ -1,7 +1,20 @@
+/*! \file
+ *  \brief Library for LCD use.
+ *
+ *  Contains all the essential functionalities to comfortably work with the
+ *  LCD on the evaluation board.
+ *
+ *  \author Lehrstuhl Informatik 11 - RWTH Aachen
+ *  \ingroup lcd_group
+ */
+
 #include "lcd.h"
 #ifdef VERSUCH
 #include "util.h"
 #endif
+
+#pragma GCC push_options
+#pragma GCC optimize("O3")
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
@@ -113,6 +126,9 @@ void lcd_home(void) {
 
 /*!
  * Relatively moves the cursor on the LCD.
+ *
+ * \param row Advance this many rows.
+ * \param column Advance this many columns.
  */
 void lcd_move(char row, char column) {
     // There are two rows
@@ -225,13 +241,23 @@ void lcd_command(uint8_t command) {
 }
 
 /*!
+ *  Writes an 16-Bit UTF-8-like-value to the LCD.
+ *
+ *  \param character  The wide character to be written.
+ */
+void lcd_writeWChar(uint16_t character) {
+    if (character > 0xFF) lcd_writeChar(character >> 8);
+    lcd_writeChar(character);
+}
+
+/*!
  *  Writes an 8-Bit UTF-8-like-value to the LCD.
  *  Supports automatic line breaks.
  *
  *  \param character  The character to be written.
  */
 void lcd_writeChar(char character) {
-    ATOMIC_BLOCK(ATOMIC_RESTORESTATE) { // Turn of interrupts
+    ATOMIC { // Turn of interrupts
 
         // For UTF-8 multibyte code point
         static uint32_t codePoint = 0;
@@ -286,6 +312,9 @@ void lcd_writeChar(char character) {
             REMAP(0xC2A5, 0x5C);           // ¥
             REMAP(0xC2B0, 0xDF);           // °
             REMAP(0xC2B5, 0xE4);           // µ
+            REMAP(0xC384, 0xE1);           // Ä
+            REMAP(0xC396, 0xEF);           // Ö
+            REMAP(0xC39C, 0xF5);           // Ü
             REMAP(0xC39F, 0xE2);           // ß
             REMAP(0xC3A4, 0xE1);           // ä
             REMAP(0xC3B6, 0xEF);           // ö
@@ -389,7 +418,7 @@ void lcd_writeHexWord(uint16_t number) {
 }
 
 /*!
- * Writes a hexadecimal word, without adding leading 0s
+ * Writes a hexadecimal word, without adding leading zeros.
  *
  * \param number The number to be written.
  */
@@ -412,7 +441,9 @@ void lcd_writeHex(uint16_t number) {
 }
 
 /*!
- *  Writes a 16 bit integer as a decimal number without leading 0s
+ * Writes a 16 bit integer as a decimal number without leading zeros.
+ *
+ * \param number The number to be written.
  */
 void lcd_writeDec(uint16_t number) {
     if (!number) {
@@ -498,7 +529,7 @@ void lcd_writeErrorProgString(const char *string) {
  *  Note that only 5 distinct chars will be stored at a time. The sixth char will override the first.
  *
  *  \param addr is the address where the character is to be stored. This value is interpreted modulo 8.
- *  \param chr The passed value is one 64 bit integer witch holds all rows of the character.
+ *  \param chr The passed value is one 64 bit integer which holds all rows of the character.
  */
 void lcd_registerCustomChar(uint8_t addr, uint64_t chr) {
     const uint8_t sreg = SREG & (1 << 7);
@@ -554,3 +585,5 @@ void lcd_writeVoltage(uint16_t voltage, uint16_t valueUpperBound, uint8_t voltUp
     lcd_writeDec(floatVal);
     lcd_writeChar('V');
 }
+
+#pragma GCC pop_options

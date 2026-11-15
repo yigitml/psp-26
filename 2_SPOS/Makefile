@@ -1,16 +1,26 @@
-PROJ=Versuch_1_ADC
+PROJ=SPOS
 
 # Microprocessor
 MCU=atmega644
 
-SRC := $(wildcard $(PROJ)/*.c)
+SRC := $(wildcard $(PROJ)/*.c) $(wildcard $(PROJ)/*/*.c)
 SRC := $(subst ',,$(subst :,,$(SRC))) # rudimentary escaping
+
+# Include Subdirectories with depth 1
+SRC_SUBDIRS := $(wildcard $(PROJ)/*/.)
+SRC_SUBDIRS := $(subst /.,,$(SRC_SUBDIRS))
+
+# standard linux include
+INC = '$(PROJ)'
+# subdirectories include
+INC += $(SRC_SUBDIRS)
 
 CFLAGS = \
   -x c \
   -mmcu=$(MCU) \
   -c \
   -std=c99 \
+  $(addprefix -I,$(INC)) \
   -DF_CPU=20000000UL \
   -Wall \
   -Werror \
@@ -70,13 +80,15 @@ FORCEEXEC:
 
 $(OUT)/:
 	mkdir -p $(OUT)
-	mkdir -p $(OUT)/'$(PROJ)'
+	mkdir -p $(OUT)/$(PROJ)
+	$(foreach dir, $(SRC_SUBDIRS), mkdir -p $(OUT)/$(dir))
+	@echo $(SRC_SUBDIRS)
 
 $(OUT)/%.o: %.c $(OUT)/%.d $(OUT)/
 	avr-gcc -c $(CFLAGS) -MD -MP -MT '$@' -MF '$(@:%.o=%.d)' -o '$@' '$<'
 
 print_sources:
-	@$(foreach src,$(SOURCES),echo $(src);)
+	@$(foreach src,$(SRC),echo $(src);)
 
 size:
 	avr-size --mcu=$(MCU) -C '$(PROJ).elf'

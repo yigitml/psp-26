@@ -11,14 +11,14 @@
 #ifndef _LCD_H
 #define _LCD_H
 
+
 #include <avr/pgmspace.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 
 // Set to 1 for SPOS starting from Versuch 2
-#define SPOS_CONFIG 0
-
+#define SPOS_CONFIG 1
 
 //----------------------------------------------------------------------------
 // Constants
@@ -31,18 +31,10 @@
 
 // Before SPOS we need to use system delay
 #define delayMs(TIME) _delay_ms(TIME)
-
-//! DDR of Port connected to LCD
-#define LCD_PORT_DDR DDRB
-
-//! PORT connected to LCD
-#define LCD_PORT_DATA PORTB
-
-//! PIN connected to LCD
-#define LCD_PIN PINB
 #else // Versuch 2+
 #include "defines.h"
 #include "util.h"
+#endif
 
 //! DDR of Port connected to LCD
 #define LCD_PORT_DDR DDRA
@@ -52,7 +44,6 @@
 
 //! PIN connected to LCD
 #define LCD_PIN PINA
-#endif
 
 //! First value for init
 #define LCD_INIT 0x03
@@ -224,6 +215,9 @@ void lcd_clear(void);
 
 //! Erases one line
 void lcd_erase(uint8_t line);
+
+//! Write wide character
+void lcd_writeWChar(uint16_t character);
 
 //! Write one character
 void lcd_writeChar(char character);
