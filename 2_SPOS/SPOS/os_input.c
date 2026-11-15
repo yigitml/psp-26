@@ -19,26 +19,35 @@ Everything that is necessary to get the input from the Buttons in a clean format
  *
  */
 uint8_t os_getInput(void) {
-#error IMPLEMENT STH. HERE
+	uint8_t buttons12 = (PINC & 0b00000011);
+	uint8_t buttons34 = (PINC & 0b11000000);
+	buttons34 = buttons34 >> 4;
+	
+	uint8_t buttons = buttons12 | buttons34;
+	return (0b00001111 & ~buttons); 
 }
 
 /*!
  *  Initializes DDR and PORT for input
  */
 void os_initInput() {
-#error IMPLEMENT STH. HERE
+	// Eingang
+	DDRC &= 0b00111100;
+	// Pull-Up Widerstand aktivieren
+	PORTC |= 0b11000011;
 }
 
 /*!
  *  Endless loop as long as at least one button is pressed.
  */
 void os_waitForNoInput() {
-#error IMPLEMENT STH. HERE
+	while (os_getInput() != 0){}
 }
 
 /*!
  *  Endless loop until at least one button is pressed.
  */
 void os_waitForInput() {
-#error IMPLEMENT STH. HERE
+	while (os_getInput() == 0){}
 }
+
