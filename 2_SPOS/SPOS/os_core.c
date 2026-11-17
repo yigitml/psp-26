@@ -135,7 +135,8 @@ void os_init(void) {
  *  \param str  The error to be displayed
  */
 void os_errorPStr(const char *str) {
-	//Betriebssystem vorläufig anhalten = das 7. Bit (MSB) im Statusregister (SREG) deaktivieren
+	//Betriebssystem vorlaufig anhalten = das 7. Bit (MSB) im Statusregister (SREG) deaktivieren
+    uint8_t oldSiebteBit = (SREG & 0b10000000);
 	SREG &= 0b01111111;
 	lcd_clear();
 	lcd_writeErrorProgString(str);
@@ -143,12 +144,12 @@ void os_errorPStr(const char *str) {
 	while (1)
 	{
 		// Tastenkombination Enter + ESC = Fehlermeldung quittierbar
-		if (os_getInput & 0b00001001) {
+		if ((os_getInput & 0b00001001) == 0b00001001) {
 			os_waitForNoInput();
 			break;
 		}
 	}
 	// 7. Bit des SREG zum gleichen Zustand wie vor
-	SREG |= 0b10000000;
+	SREG |= oldSiebteBit;
 }
 

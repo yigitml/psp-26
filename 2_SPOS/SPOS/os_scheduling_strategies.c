@@ -17,6 +17,7 @@ The file contains five strategies:
 
 #include <stdlib.h>
 
+
 /*!
  *  Reset the scheduling information for a specific strategy
  *  This is only relevant for RoundRobin and InactiveAging
@@ -50,8 +51,12 @@ void os_resetProcessSchedulingInformation(ProcessID id) {
  *  \return The next process to be executed determined on the basis of the even strategy.
  */
 ProcessID os_Scheduler_Even(const Process processes[], ProcessID current) {
-#warning IMPLEMENT STH. HERE
-    return 0;
+	for (uint8_t i = 1; i <= MAX_NUMBER_OF_PROCESSES; i++) {
+		ProcessID candidate = (current+i) % MAX_NUMBER_OF_PROCESSES;
+		if (processes[candidate].state == OS_PS_READY && candidate != 0) {
+			return candidate;
+		}
+	}
 }
 
 /*!
@@ -63,8 +68,24 @@ ProcessID os_Scheduler_Even(const Process processes[], ProcessID current) {
  *  \return The next process to be executed determined on the basis of the random strategy.
  */
 ProcessID os_Scheduler_Random(const Process processes[], ProcessID current) {
-#warning IMPLEMENT STH. HERE
-    return 0;
+	uint16_t randomNumber = rand();
+	
+	uint16_t readyAmount = 0;
+	for (uint8_t i = 1; i < MAX_NUMBER_OF_PROCESSES; i++){
+		if (processes[i].state == OS_PS_READY) {readyAmount++;}
+	}
+	if (readyAmount == 0) {return 0;}
+	
+	uint16_t target = randomNumber % readyAmount;
+	
+	for (uint8_t i = 1; i < MAX_NUMBER_OF_PROCESSES; i++) {
+		if (processes[i].state == OS_PS_READY) {
+			if (target == 0) {return i;}
+			else {target--;}
+		}
+	}
+	
+	return INVALID_PROCESS;
 }
 
 /*!

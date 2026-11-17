@@ -50,9 +50,9 @@ typedef union StackPointer {
 
 typedef struct {
     Program *program;
-	ProcessState processState;
+	ProcessState state;
 	Priority priority;
-	StackPointer stackPointer;
+	StackPointer sp;
 } Process;
 
 /*!

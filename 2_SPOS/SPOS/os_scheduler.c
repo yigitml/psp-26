@@ -31,17 +31,17 @@
 Process os_processes[MAX_NUMBER_OF_PROCESSES];
 
 //! Index of process that is currently executed (default: idle)
-#warning IMPLEMENT STH. HERE
+ProcessID currentProc = 0;
 
 //----------------------------------------------------------------------------
 // Private variables
 //----------------------------------------------------------------------------
 
 //! Currently active scheduling strategy
-#warning IMPLEMENT STH. HERE
+SchedulingStrategy currentStrategy = OS_SS_EVEN;
 
 //! Count of currently nested critical sections
-#warning IMPLEMENT STH. HERE
+uint8_t criticalSectionCount = 0;
 
 //----------------------------------------------------------------------------
 // Private function declarations
@@ -64,7 +64,34 @@ __attribute__((naked));
  *  the processor to that process.
  */
 ISR(TIMER2_COMPA_vect) {
-#warning IMPLEMENT STH. HERE
+	saveContext();
+	os_processes[currentProc].sp.as_int = SP;
+	SP = BOTTOM_OF_ISR_STACK;
+	os_processes[currentProc].state = OS_PS_READY;
+	
+	switch (currentStrategy) {
+		case OS_SS_EVEN:
+			currentProc = os_Scheduler_Even(os_processes, currentProc);
+			break;
+		case OS_SS_INACTIVE_AGING:
+			currentProc = os_Scheduler_InactiveAging(os_processes, currentProc);
+			break;
+		case OS_SS_RANDOM:
+			currentProc = os_Scheduler_Random(os_processes, currentProc);
+			break;
+		case OS_SS_ROUND_ROBIN:
+			currentProc = os_Scheduler_RoundRobin(os_processes, currentProc);
+			break;
+		case OS_SS_RUN_TO_COMPLETION:
+			currentProc = os_Scheduler_RunToCompletion(os_processes, currentProc);
+			break;
+		default:
+			break;
+	}
+	
+	os_processes[currentProc].state = OS_PS_RUNNING;
+	SP = os_processes[currentProc].sp.as_int;
+	restoreContext();
 }
 
 /*!
@@ -72,7 +99,10 @@ ISR(TIMER2_COMPA_vect) {
  *  and processor time no other process wants to have.
  */
 void idle(void){
-#warning IMPLEMENT STH. HERE
+	while(1){
+		lcd_writeChar('.');
+		delayMs(DEFAULT_OUTPUT_DELAY);
+	}
 }
 
 /*!
@@ -91,7 +121,29 @@ void idle(void){
  *          defines.h on failure
  */
 ProcessID os_exec(Program *program, Priority priority) {
-#error IMPLEMENT STH. HERE
+    if (program == NULL){ return INVALID_PROCESS;} 
+    ProcessID nextEmptyIndex = 0;
+    while (nextEmptyIndex < MAX_NUMBER_OF_PROCESSES){
+        if (os_processes[nextEmptyIndex].state == OS_PS_UNUSED) {
+            os_processes[nextEmptyIndex].program = program;
+            os_processes[nextEmptyIndex].state = OS_PS_READY;
+            os_processes[nextEmptyIndex].priority = priority;
+            // os_processes[nextEmptyIndex].sp = ???;
+			break;
+        } else {nextEmptyIndex++;}
+	}
+
+    if (nextEmptyIndex == MAX_NUMBER_OF_PROCESSES) {return INVALID_PROCESS;}
+		
+	/*Process *process = &os_processes[nextEmptyIndex];
+	process->program = program
+	process->priority = priority;
+	StackPointer sp = PROCESS_STACK_BOTTOM(nextEmptyIndex);
+	process->sp = sp;
+	
+	uint16_t address = program
+	*/
+		
 }
 
 /*!
@@ -100,7 +152,12 @@ ProcessID os_exec(Program *program, Priority priority) {
  *  applications.
  */
 void os_startScheduler(void) {
-#warning IMPLEMENT STH. HERE
+	currentProc = 0;
+	os_processes[currentProc].state = OS_PS_RUNNING;
+	//3. Setzen des Stackpointers auf den Prozessstack des Leerlaufprozesses.
+	SP = os_processes[currentProc].sp.as_int;
+	restoreContext();
+	
 }
 
 /*!
@@ -108,7 +165,15 @@ void os_startScheduler(void) {
  *  initialize its internal data-structures and register.
  */
 void os_initScheduler(void){
-#warning IMPLEMENT STH. HERE
+	for (ProcessID i = 0; i < MAX_NUMBER_OF_PROCESSES; i++){
+		os_processes[i].state = OS_PS_UNUSED;
+	}
+	os_exec(idle, DEFAULT_PRIORITY);
+	
+	for (struct program_linked_list_node *node = autostart_head; node != NULL; node = node->next) {
+		os_exec(node->program, DEFAULT_PRIORITY);
+	}
+	
 }
 
 /*!
@@ -127,8 +192,7 @@ Process *os_getProcessSlot(ProcessID pid) {
  *  \return The process id of the currently active process.
  */
 ProcessID os_getCurrentProc(void) {
-#warning IMPLEMENT STH. HERE
-    return 0;
+    return currentProc;
 }
 
 /*!
@@ -137,7 +201,7 @@ ProcessID os_getCurrentProc(void) {
  *  \param strategy The strategy that will be used after the function finishes.
  */
 void os_setSchedulingStrategy(SchedulingStrategy strategy){
-#warning IMPLEMENT STH. HERE
+	currentStrategy = strategy;
 }
 
 /*!
@@ -146,8 +210,7 @@ void os_setSchedulingStrategy(SchedulingStrategy strategy){
  *  \return The current scheduling strategy.
  */
 SchedulingStrategy os_getSchedulingStrategy(void) {
-#warning IMPLEMENT STH. HERE
-    return OS_SS_EVEN;
+    return currentStrategy;
 }
 
 /*!
@@ -158,7 +221,13 @@ SchedulingStrategy os_getSchedulingStrategy(void) {
  *  This function supports up to 255 nested critical sections.
  */
 void os_enterCriticalSection(void) {
-#warning IMPLEMENT STH. HERE
+	uint8_t gieb = (SREG & 0b10000000);
+	SREG &= 0b01111111;
+	if (criticalSectionCount == 255) { os_error("Overflow Fehler!");}
+	criticalSectionCount++;
+	TIMSK2 &= ~(1 << (OCIE2A-1));
+	SREG |= gieb;
+	
 }
 
 /*!
@@ -168,7 +237,12 @@ void os_enterCriticalSection(void) {
  *  has to be reactivated.
  */
 void os_leaveCriticalSection(void){
-#warning IMPLEMENT STH. HERE
+	uint8_t gieb = (SREG & 0b10000000);
+	SREG &= 0b01111111;
+	if (criticalSectionCount == 0) { os_error("Underflow Fehler!");}
+	criticalSectionCount--;
+	if (criticalSectionCount == 0){TIMSK2 |= (1 << (OCIE2A-1));} 
+	SREG |= gieb;
 }
 
 /*!
@@ -178,6 +252,6 @@ void os_leaveCriticalSection(void){
  *  \return The checksum of the pid'th stack.
  */
 StackChecksum os_getStackChecksum(ProcessID pid) {
-#warning IMPLEMENT STH. HERE
-    return 0;
+	StackChecksum stackCheckSum = 0;
+    return stackCheckSum;
 }
