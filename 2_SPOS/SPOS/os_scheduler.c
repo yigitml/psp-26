@@ -122,6 +122,7 @@ void idle(void){
  */
 ProcessID os_exec(Program *program, Priority priority) {
     if (program == NULL){ return INVALID_PROCESS;} 
+	
     ProcessID nextEmptyIndex = 0;
     while (nextEmptyIndex < MAX_NUMBER_OF_PROCESSES){
         if (os_processes[nextEmptyIndex].state == OS_PS_UNUSED) {
@@ -129,21 +130,34 @@ ProcessID os_exec(Program *program, Priority priority) {
             os_processes[nextEmptyIndex].state = OS_PS_READY;
             os_processes[nextEmptyIndex].priority = priority;
             // os_processes[nextEmptyIndex].sp = ???;
-			break;
+			
+			
+			os_processes[nextEmptyIndex].sp.as_int = PROCESS_STACK_BOTTOM(nextEmptyIndex);
+			uint16_t progAdress = (uint16_t) program;
+			
+			 // Jede Speicherstelle nur 8 Bits => in zwei teilen
+			 uint8_t lowBits = (uint8_t) progAdress;
+			 uint8_t highBits = (uint8_t) (progAdress >> 8);
+			 
+			 *os_processes[nextEmptyIndex].sp.as_ptr = lowBits;
+			 os_processes[nextEmptyIndex].sp.as_ptr--;
+			 *os_processes[nextEmptyIndex].sp.as_ptr = highBits;
+			 os_processes[nextEmptyIndex].sp.as_ptr--;
+			 
+			 for (int i = 1; i <= 33; i++) {
+				 *os_processes[nextEmptyIndex].sp.as_ptr = 0;
+				 os_processes[nextEmptyIndex].sp.as_ptr--;
+			 }
+
+			 return nextEmptyIndex;
+			 
+			
         } else {nextEmptyIndex++;}
 	}
 
     if (nextEmptyIndex == MAX_NUMBER_OF_PROCESSES) {return INVALID_PROCESS;}
 		
-	/*Process *process = &os_processes[nextEmptyIndex];
-	process->program = program
-	process->priority = priority;
-	StackPointer sp = PROCESS_STACK_BOTTOM(nextEmptyIndex);
-	process->sp = sp;
-	
-	uint16_t address = program
-	*/
-		
+
 }
 
 /*!
@@ -253,5 +267,13 @@ void os_leaveCriticalSection(void){
  */
 StackChecksum os_getStackChecksum(ProcessID pid) {
 	StackChecksum stackCheckSum = 0;
+	uint8_t *localPtr = os_processes[pid].sp.as_int;
+	localPtr++;
+	
+	for (; ((uint16_t) localPtr) <= PROCESS_STACK_BOTTOM(pid); localPtr++) {
+		 //check Sum mit XOR
+		stackCheckSum = stackCheckSum ^ *localPtr;
+
+	}
     return stackCheckSum;
 }

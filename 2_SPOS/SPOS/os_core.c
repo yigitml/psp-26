@@ -144,7 +144,7 @@ void os_errorPStr(const char *str) {
 	while (1)
 	{
 		// Tastenkombination Enter + ESC = Fehlermeldung quittierbar
-		if ((os_getInput & 0b00001001) == 0b00001001) {
+		if ((os_getInput() & 0b00001001) == 0b00001001) {
 			os_waitForNoInput();
 			break;
 		}
