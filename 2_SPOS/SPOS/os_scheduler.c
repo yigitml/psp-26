@@ -67,8 +67,6 @@ ISR(TIMER2_COMPA_vect) {
 	saveContext();
 	os_processes[currentProc].sp.as_int = SP;
 	SP = BOTTOM_OF_ISR_STACK;
-	os_processes[currentProc].checksum = os_getStackChecksum(currentProc);
-	os_processes[currentProc].state = OS_PS_READY;
 	
 	 if ((os_getInput() & 0b00001001) == 0b00001001) {
 		 os_waitForNoInput();
@@ -174,7 +172,7 @@ ProcessID os_exec(Program *program, Priority priority) {
 				 os_processes[nextEmptyIndex].sp.as_ptr--;
 			 }
 
-			os_processes[nextEmptyIndex].checkSum = os_getStackChecksum(nextEmptyIndex);
+			os_processes[nextEmptyIndex].checksum = os_getStackChecksum(nextEmptyIndex);
 			os_processes[nextEmptyIndex].state = OS_PS_READY;
 			os_leaveCriticalSection();
 			return nextEmptyIndex;
