@@ -66,7 +66,9 @@ __attribute__((naked));
 ISR(TIMER2_COMPA_vect) {
 	saveContext();
 	os_processes[currentProc].sp.as_int = SP;
+	
 	SP = BOTTOM_OF_ISR_STACK;
+	os_processes[currentProc].checksum = os_getStackChecksum(currentProc);
 	
 	 if ((os_getInput() & 0b00001001) == 0b00001001) {
 		 os_waitForNoInput();
