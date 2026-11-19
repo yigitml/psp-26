@@ -67,7 +67,17 @@ ISR(TIMER2_COMPA_vect) {
 	saveContext();
 	os_processes[currentProc].sp.as_int = SP;
 	SP = BOTTOM_OF_ISR_STACK;
+	os_processes[currentProc].checksum = os_getStackChecksum(currentProc);
 	os_processes[currentProc].state = OS_PS_READY;
+	
+	 if ((os_getInput() & 0b00001001) == 0b00001001) {
+		 os_waitForNoInput();
+		 os_taskManMain();
+	 }
+	 
+	 if (os_processes[currentProc].state == OS_PS_RUNNING) {
+		 os_processes[currentProc].state = OS_PS_READY;
+	 }
 	
 	switch (currentStrategy) {
 		case OS_SS_EVEN:
@@ -88,6 +98,10 @@ ISR(TIMER2_COMPA_vect) {
 		default:
 			break;
 	}
+	
+	 if (os_processes[currentProc].checksum != os_getStackChecksum(currentProc)) {
+		 os_error("Stack inconsistent");
+	 }
 	
 	os_processes[currentProc].state = OS_PS_RUNNING;
 	SP = os_processes[currentProc].sp.as_int;
@@ -121,16 +135,27 @@ void idle(void){
  *          defines.h on failure
  */
 ProcessID os_exec(Program *program, Priority priority) {
-    if (program == NULL){ return INVALID_PROCESS;} 
+	os_enterCriticalSection();
+	
+	
+    if (program == NULL){ 
+		os_leaveCriticalSection();
+		return INVALID_PROCESS;
+	} 
 	
     ProcessID nextEmptyIndex = 0;
-    while (nextEmptyIndex < MAX_NUMBER_OF_PROCESSES){
-        if (os_processes[nextEmptyIndex].state == OS_PS_UNUSED) {
+    while (nextEmptyIndex < MAX_NUMBER_OF_PROCESSES && os_processes[nextEmptyIndex].state != OS_PS_UNUSED){
+		nextEmptyIndex++;
+	}
+	
+	if (nextEmptyIndex == MAX_NUMBER_OF_PROCESSES) {
+		os_leaveCriticalSection();
+		return INVALID_PROCESS;
+	}
+		
             os_processes[nextEmptyIndex].program = program;
-            os_processes[nextEmptyIndex].state = OS_PS_READY;
             os_processes[nextEmptyIndex].priority = priority;
-            // os_processes[nextEmptyIndex].sp = ???;
-			
+
 			
 			os_processes[nextEmptyIndex].sp.as_int = PROCESS_STACK_BOTTOM(nextEmptyIndex);
 			uint16_t progAdress = (uint16_t) program;
@@ -149,15 +174,11 @@ ProcessID os_exec(Program *program, Priority priority) {
 				 os_processes[nextEmptyIndex].sp.as_ptr--;
 			 }
 
-			 return nextEmptyIndex;
+			os_processes[nextEmptyIndex].checkSum = os_getStackChecksum(nextEmptyIndex);
+			os_processes[nextEmptyIndex].state = OS_PS_READY;
+			os_leaveCriticalSection();
+			return nextEmptyIndex;
 			 
-			
-        } else {nextEmptyIndex++;}
-	}
-
-    if (nextEmptyIndex == MAX_NUMBER_OF_PROCESSES) {return INVALID_PROCESS;}
-		
-
 }
 
 /*!
@@ -238,8 +259,8 @@ void os_enterCriticalSection(void) {
 	uint8_t gieb = (SREG & 0b10000000);
 	SREG &= 0b01111111;
 	if (criticalSectionCount == 255) { os_error("Overflow Fehler!");}
-	criticalSectionCount++;
-	TIMSK2 &= ~(1 << (OCIE2A-1));
+	else {criticalSectionCount++;}
+	TIMSK2 &= ~(1 << (OCIE2A));
 	SREG |= gieb;
 	
 }
@@ -254,8 +275,8 @@ void os_leaveCriticalSection(void){
 	uint8_t gieb = (SREG & 0b10000000);
 	SREG &= 0b01111111;
 	if (criticalSectionCount == 0) { os_error("Underflow Fehler!");}
-	criticalSectionCount--;
-	if (criticalSectionCount == 0){TIMSK2 |= (1 << (OCIE2A-1));} 
+	else {criticalSectionCount--;}
+	if (criticalSectionCount == 0){TIMSK2 |= (1 << (OCIE2A));} 
 	SREG |= gieb;
 }
 
@@ -267,7 +288,7 @@ void os_leaveCriticalSection(void){
  */
 StackChecksum os_getStackChecksum(ProcessID pid) {
 	StackChecksum stackCheckSum = 0;
-	uint8_t *localPtr = os_processes[pid].sp.as_int;
+	uint8_t *localPtr = os_processes[pid].sp.as_ptr;
 	localPtr++;
 	
 	for (; ((uint16_t) localPtr) <= PROCESS_STACK_BOTTOM(pid); localPtr++) {

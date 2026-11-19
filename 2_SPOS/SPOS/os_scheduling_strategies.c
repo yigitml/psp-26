@@ -57,6 +57,7 @@ ProcessID os_Scheduler_Even(const Process processes[], ProcessID current) {
 			return candidate;
 		}
 	}
+	return 0;
 }
 
 /*!
@@ -68,15 +69,13 @@ ProcessID os_Scheduler_Even(const Process processes[], ProcessID current) {
  *  \return The next process to be executed determined on the basis of the random strategy.
  */
 ProcessID os_Scheduler_Random(const Process processes[], ProcessID current) {
-	uint16_t randomNumber = rand();
-	
 	uint16_t readyAmount = 0;
 	for (uint8_t i = 1; i < MAX_NUMBER_OF_PROCESSES; i++){
 		if (processes[i].state == OS_PS_READY) {readyAmount++;}
 	}
 	if (readyAmount == 0) {return 0;}
 	
-	uint16_t target = randomNumber % readyAmount;
+	uint16_t target = rand() % readyAmount;
 	
 	for (uint8_t i = 1; i < MAX_NUMBER_OF_PROCESSES; i++) {
 		if (processes[i].state == OS_PS_READY) {
